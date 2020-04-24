@@ -61,5 +61,7 @@ class Menu extends Phaser.Scene{
           this.sound.play('sfx_select');
           this.scene.start("playScene");    
         }
+
+        //Implement 2-player setting spawning the 2nd player game vs. 1st player game
       }
 }

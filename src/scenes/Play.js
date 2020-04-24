@@ -6,8 +6,10 @@ class Play extends Phaser.Scene{
     preload(){
         //load sprites
         this.load.image('rocket', './assets/rocket.png'); 
+        this.load.image('rocket2', './assets/rocket2.png'); 
         this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
+        this.load.image('asteroid', './assets/asteroid.png');
         this.load.spritesheet('explosion', './assets/explosion.png',{
             frameWidth: 64,
             frameHeight: 32, 
@@ -21,29 +23,36 @@ class Play extends Phaser.Scene{
 
         //white rect boarders
         this.add.rectangle(5, 5, 630, 32, 0xFACADE).setOrigin(0,0); 
-        this.add.rectangle(5, 443, 630, 32, 0xFACADE).setOrigin(0,0); 
-        this.add.rectangle(5, 5, 32, 455, 0xFACADE).setOrigin(0,0); 
-        this.add.rectangle(603, 5, 32, 455, 0xFACADE).setOrigin(0,0); 
+        this.add.rectangle(5, 5, 32, 470, 0xFACADE).setOrigin(0,0); 
+        this.add.rectangle(603, 5, 32, 470, 0xFACADE).setOrigin(0,0); 
 
         //grn UI background
         this.add.rectangle(37,42,566,64,0x00FF00).setOrigin(0,0); 
     
-        this.p1Rocket = new Rocket(this, game.config.width/2, 431,'rocket')
+        //Player 1
+        this.p1Rocket = new Rocket(this, game.config.width/4, 431,'rocket') 
+        .setScale(0.5, 0.5,).setOrigin(0,0);
+        this.p2Rocket = new Rocket2(this, game.config.width/4, 431,'rocket2') 
         .setScale(0.5, 0.5,).setOrigin(0,0);
         
+
         //add spaceships
         this.ship01 = new Spaceship(this, game.config.width + 192, 132, 'spaceship', 0, 30)
         .setOrigin(0,0); 
         this.ship02 = new Spaceship(this, game.config.width + 96, 196, 'spaceship', 0, 20)
         .setOrigin(0,0); 
         this.ship03 = new Spaceship(this, game.config.width, 260, 'spaceship', 0, 10)
-        .setOrigin(0,0); 
+        .setOrigin(0,0);  
+        this.asteroid = new Spaceship(this, game.config.width + 300, 320, 'asteroid', 0, 0)
+        .setOrigin(0,0);  
+        this.asteroid1 = new Spaceship(this, game.config.width + 150, 320, 'asteroid', 0, 0)
+        .setOrigin(0,0);
 
-
+        //Player1
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F); 
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT); 
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-    
+
         //animation
         this.anims.create({
             key: 'explode', 
@@ -57,6 +66,8 @@ class Play extends Phaser.Scene{
 
         //keeping score
         this.playerScore = 0; 
+
+        //implement player 1 score and player 2 score
 
         //displaying score
         let scoreConfig = { 
@@ -72,10 +83,11 @@ class Play extends Phaser.Scene{
             fixedWidth:100
         }
         this.scoreLeft = this.add.text(69, 54, this.playerScore,scoreConfig); 
-        
-        this.gameOver = false; 
-        //60sec clock
         scoreConfig.fixedWidth = 0;
+
+        this.gameOver = false; 
+
+        //60sec clock
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
             this.add.text(game.config.width/2, game.config.height/2 + 64, '(F)ire to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
@@ -95,13 +107,18 @@ class Play extends Phaser.Scene{
         this.starfield.tilePositionX -= 4; 
 
         if(!this.gameOver){
-        this.p1Rocket.update();         
+        this.p1Rocket.update();
+        this.p2Rocket.update(); 
 
         this.ship01.update(); 
         this.ship02.update(); 
         this.ship03.update();
+
+        this.asteroid.update();
+        this.asteroid1.update(); 
         }
         
+        //player 1
         if(this.checkCollision(this.p1Rocket, this.ship03)){
             this.p1Rocket.reset();
             this.shipExplode(this.ship03);
@@ -114,8 +131,38 @@ class Play extends Phaser.Scene{
             this.p1Rocket.reset();
             this.shipExplode(this.ship01);
         }
+        if(this.checkCollision(this.p1Rocket, this.asteroid)){
+            this.p1Rocket.reset();
+            this.shipExplode(this.asteroid);
+        }
+        if(this.checkCollision(this.p1Rocket, this.asteroid1)){
+            this.p1Rocket.reset();
+            this.shipExplode(this.asteroid1);
+        }
 
 
+        //player2 
+        if(this.checkCollision(this.p2Rocket, this.ship03)){
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship03);
+        }
+        if(this.checkCollision(this.p2Rocket, this.ship02)){
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship02);
+        }
+        if(this.checkCollision(this.p2Rocket, this.ship01)){
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship01);
+        }
+        if(this.checkCollision(this.p2Rocket, this.asteroid)){
+            this.p2Rocket.reset();
+            this.shipExplode(this.asteroid);
+        }
+        if(this.checkCollision(this.p2Rocket, this.asteroid1)){
+            this.p2Rocket.reset();
+            this.shipExplode(this.asteroid1);
+        }
+        
     }
 
     checkCollision(rocket, ship){

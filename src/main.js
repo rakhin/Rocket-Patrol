@@ -7,7 +7,9 @@ let config = {
 };
 let game = new Phaser.Game(config); 
 
-let keyF, keyLEFT, keyRIGHT; 
+let keyF, keyLEFT, keyRIGHT; //PLayer 1
+
+
 
 game.settings = {
     spaceshipSpeed: 3,
